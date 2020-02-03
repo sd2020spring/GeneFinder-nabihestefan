@@ -2,13 +2,14 @@
 """
 YOUR HEADER COMMENT HERE
 
-@author: YOUR NAME HERE
+@author: Nabih Estefan
 
 """
 
 import random
 from amino_acids import aa, codons, aa_table   # you may find these useful
 from load import load_seq
+import doctest
 
 
 def shuffle_string(s):
@@ -31,7 +32,20 @@ def get_complement(nucleotide):
     'G'
     """
     # TODO: implement this
+
+    if nucleotide == 'A':
+        return 'T'
+    elif nucleotide == 'C':
+        return 'G'
+    elif nucleotide == 'T':
+        return 'A'
+    elif nucleotide == 'G':
+        return 'C'
+
     pass
+
+#Passed
+#doctest.run_docstring_examples(get_complement, globals(), verbose=True)
 
 
 def get_reverse_complement(dna):
@@ -46,7 +60,17 @@ def get_reverse_complement(dna):
     'TGAACGCGG'
     """
     # TODO: implement this
+    complement = ''
+    i = len(dna) - 1
+    while i >= 0:
+        complement += get_complement(dna[i])
+        i -= 1
+
+    return complement
     pass
+
+#Passed
+#doctest.run_docstring_examples(get_reverse_complement, globals(), verbose=True)
 
 
 def rest_of_ORF(dna):
@@ -63,7 +87,23 @@ def rest_of_ORF(dna):
     'ATGAGA'
     """
     # TODO: implement this
+    i = 0
+    l = len(dna)
+    rest = ''
+    while i < l-3:
+        if(dna[i:i+3] == 'TAG' or dna[i:i+3] == 'TAA' or dna[i:i+3] == 'TGA'):
+            break
+        rest += dna[i:i+3]
+        i += 3
+    if(i >= l-3):
+        if(dna[i:i+3] != 'TAG' and dna[i:i+3] != 'TAA' and dna[i:i+3] != 'TGA'):
+            rest += dna[i:l]
+
+    return rest
     pass
+
+#Passed
+#doctest.run_docstring_examples(rest_of_ORF, globals(), verbose=True)
 
 
 def find_all_ORFs_oneframe(dna):
@@ -80,7 +120,24 @@ def find_all_ORFs_oneframe(dna):
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
     """
     # TODO: implement this
+    i = 0
+    l = len(dna)
+    ORFs = []
+    singleORF = ''
+
+    while i < l-3:
+        if(dna[i:i+3] == 'ATG'):
+            singleORF = rest_of_ORF(dna[i:])
+            i += len(singleORF) + 3
+            ORFs.append(singleORF)
+        else:
+            i += 3
+
+    return ORFs
+
     pass
+#Passed
+#doctest.run_docstring_examples(find_all_ORFs_oneframe, globals(), verbose=True)
 
 
 def find_all_ORFs(dna):
@@ -97,7 +154,40 @@ def find_all_ORFs(dna):
     ['ATGCATGAATGTAG', 'ATGAATGTAG', 'ATG']
     """
     # TODO: implement this
+    list = []
+    tempo = []
+    i = 0
+
+    tempo = find_all_ORFs_oneframe(dna)
+    while i < len(tempo):
+        list.append(tempo[i])
+        i += 1
+    i = 0
+
+    tempo = find_all_ORFs_oneframe(dna[1:])
+    while i < len(tempo):
+        list.append(tempo[i])
+        i += 1
+    i = 0
+
+    tempo = find_all_ORFs_oneframe(dna[2:])
+    while i < len(tempo):
+        list.append(tempo[i])
+        i += 1
+    i = 0
+
+    """
+    list.append(find_all_ORFs_oneframe(dna))
+    list.append(find_all_ORFs_oneframe(dna[1:]))
+    list.append(find_all_ORFs_oneframe(dna[2:]))
+    """
+
+    return list
+
     pass
+
+#Passed
+#doctest.run_docstring_examples(find_all_ORFs, globals(), verbose=True)
 
 
 def find_all_ORFs_both_strands(dna):
@@ -109,8 +199,32 @@ def find_all_ORFs_both_strands(dna):
     >>> find_all_ORFs_both_strands("ATGCGAATGTAGCATCAAA")
     ['ATGCGAATG', 'ATGCTACATTCGCAT']
     """
+
+    list = []
+    tempo = []
+    i = 0
+
+    revdna = get_reverse_complement(dna)
+
+    tempo = find_all_ORFs(dna)
+    while i < len(tempo):
+        list.append(tempo[i])
+        i += 1
+    i = 0
+
+
+    tempo = find_all_ORFs(revdna)
+    while i < len(tempo):
+        list.append(tempo[i])
+        i += 1
+    i = 0
     # TODO: implement this
+
+    return list
     pass
+
+#Passed
+#doctest.run_docstring_examples(find_all_ORFs_both_strands, globals(), verbose=True)
 
 
 def longest_ORF(dna):
@@ -161,6 +275,9 @@ def gene_finder(dna):
     # TODO: implement this
     pass
 
+
+"""
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+"""
