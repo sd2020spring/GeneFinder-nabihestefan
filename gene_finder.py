@@ -31,7 +31,7 @@ def get_complement(nucleotide):
     >>> get_complement('C')
     'G'
     """
-    # TODO: implement this
+
 
     if nucleotide == 'A':
         return 'T'
@@ -59,7 +59,7 @@ def get_reverse_complement(dna):
     >>> get_reverse_complement("CCGCGTTCA")
     'TGAACGCGG'
     """
-    # TODO: implement this
+
     complement = ''
     i = len(dna) - 1
     while i >= 0:
@@ -86,7 +86,7 @@ def rest_of_ORF(dna):
     >>> rest_of_ORF("ATGAGATAGG")
     'ATGAGA'
     """
-    # TODO: implement this
+
     i = 0
     l = len(dna)
     rest = ''
@@ -119,7 +119,7 @@ def find_all_ORFs_oneframe(dna):
     >>> find_all_ORFs_oneframe("ATGCATGAATGTAGATAGATGTGCCC")
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
     """
-    # TODO: implement this
+
     i = 0
     l = len(dna)
     ORFs = []
@@ -153,7 +153,7 @@ def find_all_ORFs(dna):
     >>> find_all_ORFs("ATGCATGAATGTAG")
     ['ATGCATGAATGTAG', 'ATGAATGTAG', 'ATG']
     """
-    # TODO: implement this
+
     list = []
     tempo = []
     i = 0
@@ -218,7 +218,7 @@ def find_all_ORFs_both_strands(dna):
         list.append(tempo[i])
         i += 1
     i = 0
-    # TODO: implement this
+
 
     return list
     pass
@@ -233,8 +233,26 @@ def longest_ORF(dna):
     >>> longest_ORF("ATGCGAATGTAGCATCAAA")
     'ATGCTACATTCGCAT'
     """
-    # TODO: implement this
+
+    all = find_all_ORFs_both_strands(dna)
+
+    l = len(all[0])
+    i = 0
+    c = 0
+    max = len(all)
+
+    while (i < max):
+        if len(all[i]) > l:
+            l = len(all[i])
+            c = i
+        i += 1
+
+
+    return all[c]
     pass
+
+#Passed
+#doctest.run_docstring_examples(longest_ORF, globals(), verbose=True)
 
 
 def longest_ORF_noncoding(dna, num_trials):
@@ -244,8 +262,22 @@ def longest_ORF_noncoding(dna, num_trials):
         dna: a DNA sequence
         num_trials: the number of random shuffles
         returns: the maximum length longest ORF """
-    # TODO: implement this
+
+    l = 0
+    i = 0
+    x = 0
+    while i < num_trials:
+        x = longest_ORF(dna)
+        if (len(x) > l):
+            l = len(longest_ORF(dna))
+        dna = shuffle_string(dna)
+        i += 1
+    return l
+
     pass
+
+#Random so it doesnt apply
+##doctest.run_docstring_examples(longest_ORF_noncoding, globals(), verbose=True)
 
 
 def coding_strand_to_AA(dna):
@@ -262,9 +294,21 @@ def coding_strand_to_AA(dna):
         >>> coding_strand_to_AA("ATGCCCGCTTT")
         'MPA'
     """
-    # TODO: implement this
+
+    seq = ''
+    aa = ''
+    i = 0
+    l = len(dna)
+    while i < l-2:
+        aa = aa_table[dna[i: i+3]]
+        seq += aa
+        i += 3
+    return seq
+
     pass
 
+#Passed
+#doctest.run_docstring_examples(coding_strand_to_AA, globals(), verbose=True)
 
 def gene_finder(dna):
     """ Returns the amino acid sequences that are likely coded by the specified dna
@@ -272,12 +316,23 @@ def gene_finder(dna):
         dna: a DNA sequence
         returns: a list of all amino acid sequences coded by the sequence dna.
     """
-    # TODO: implement this
+
+    threshhold = longest_ORF_noncoding(dna, 1500)
+    arr = find_all_ORFs_both_strands(dna)
+
+    filtered = list(filter(lambda x: len(x) >= threshhold, arr))
+
+    mapped = list(map(coding_strand_to_AA, filtered))
+
+    return mapped
     pass
 
+#doctest.run_docstring_examples(gene_finder, globals(), verbose=True)
 
-"""
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-"""
+
+    dna = load_seq("./data/X73525.fa")
+    print(gene_finder(dna))
